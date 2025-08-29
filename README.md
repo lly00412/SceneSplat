@@ -102,7 +102,9 @@ The configuration includes:
 
 
 ## Vision-Language Pretraining
-**Train from scratch.** Note that the config settings can be passed on-the-fly using the `--options` flag. The `save_path` is the directory where the model checkpoints, logs and evaluation results will be saved. For example, the following commands start the run with the joint training config.
+### Train from scratch
+
+Note that the config settings can be passed on-the-fly using the `--options` flag. The `save_path` is the directory where the model checkpoints, logs and evaluation results will be saved. For example, the following commands start the run with the joint training config.
 ```bash
 python tools/ssl_pretrain.py \
   --config-file configs/concat_dataset/ssl-pretrain-concat-scan-ppv2-matt-3rscan-arkit-hyper-mcmc-base.py \
@@ -112,7 +114,8 @@ python tools/ssl_pretrain.py \
     batch_size_test=$batch_size_test num_worker=$num_worker gpu_nums=$gpu_num \
   --num-gpus $gpu_num \
 ```
-**Multi-node training.**
+### Multi-node training
+
 The codebase supports multi-node training when submitted on a SLURM cluster with NCCL library. The bash script [here](sh_jobs/snellius/concat_dataset/lang-pretrain-concat-scan-ppv2-matt-mcmc-wo-normal-contrastive-nccl.sh) is an example to run the task on 4 nodes. The difference from the single-node training is that we use `srun` to launch the task and add the `--multi_node` flag. Note there might be cluster-specific settings for the NCCL config, e.g., `NCCL_SOCKET_IFNAME`. Please adapt the settings if necessary.
 
 ```bash
@@ -121,7 +124,9 @@ srun python tools/train.py \
     --multi_node
 ```
 
-**Resume training from checkpoint.** You can resume training from a checkpoint by specifying the checkpoint path to the `weight` option and set `resume=True`. For example:
+### Resume training from checkpoint
+
+You can resume training from a checkpoint by specifying the checkpoint path to the `weight` option and set `resume=True`. For example:
 ```bash
 python tools/train.py \
     --config-file lang-pretrain-concat-scan-ppv2-matt-mcmc-wo-normal-contrastive.py \
@@ -132,7 +137,9 @@ python tools/train.py \
 ```
 If `weight` is set but not `resume`, the training will start from the checkpoint but not resume the training process, i.e., the epoch and scheduler will be reset.
 
-**Evaluation during training.** Evaluation is run after every epoch on the specified `val` data. To speed up the process, evaluation is performed on Gaussians after grid sampling. Note that the evaluation always happens at the original dataset label locations and that neighboring voting is enabled. The best checkpoint is picked by the foreground mIoU metric. The following parameters are set for the evaluator:
+### Evaluation during training
+
+Evaluation is run after every epoch on the specified `val` data. To speed up the process, evaluation is performed on Gaussians after grid sampling. Note that the evaluation always happens at the original dataset label locations and that neighboring voting is enabled. The best checkpoint is picked by the foreground mIoU metric. The following parameters are set for the evaluator:
 
 ```python
 class_names='/path/to/class_names.txt', 
@@ -147,7 +154,9 @@ confidence_threshold=0.1,
 The pipeline supports adding multiple data for evaluation. For example, the config for joint training [here](configs/concat_dataset/lang-pretrain-concat-scan-ppv2-matt-mcmc-wo-normal-contrastive.py) adds three datasets for evaluation. When adding multiple data, please set the corresponding `class_names`, `text_embeddings` and `excluded_classes` for each dataset. 
 
 
-**Testing.** The training config is set to run the testing process automatically after training with the `PreciseEvaluator` hook, which calls the tester. Different from the training evaluation, where grid sampling is applied, the testing process will split the 3DGS scene into chunks and ensure coverage of all input Gaussians. `ZeroShotSemSegTester` is used here, and it has similar parameters as the evaluator. 
+### Testing 
+
+The training config is set to run the testing process automatically after training with the `PreciseEvaluator` hook, which calls the tester. Different from the training evaluation, where grid sampling is applied, the testing process will split the 3DGS scene into chunks and ensure coverage of all input Gaussians. `ZeroShotSemSegTester` is used here, and it has similar parameters as the evaluator. 
 
 ```python
 verbose=True,
@@ -175,7 +184,9 @@ python tools/train.py \
 ```
 
 
-**Reproducing the results.** We reported the best zero-shot results using the joint training [config](configs/concat_dataset/lang-pretrain-concat-scan-ppv2-matt-mcmc-wo-normal-contrastive.py), which covers 600 data epochs on the ScanNet, ScanNet++, and Matterport3D 3DGS scenes. The training takes around 3.5 days on 16 NVIDIA H100 GPUs using multi-node training. Note that the vision-language pretraining requires at least 48GB GPU memory, and the training results may vary for different runs. The checkpoint corresponding to this config is available [here](https://huggingface.co/GaussianWorld/SceneSplat_lang-pretrain-concat-scan-ppv2-matt-mcmc-wo-normal-contrastive), which should obtain the evaluation reported results for joint training.
+### Reproducing the results
+
+We reported the best zero-shot results using the joint training [config](configs/concat_dataset/lang-pretrain-concat-scan-ppv2-matt-mcmc-wo-normal-contrastive.py), which covers 600 data epochs on the ScanNet, ScanNet++, and Matterport3D 3DGS scenes. The training takes around 3.5 days on 16 NVIDIA H100 GPUs using multi-node training. Note that the vision-language pretraining requires at least 48GB GPU memory, and the training results may vary for different runs. The checkpoint corresponding to this config is available [here](https://huggingface.co/GaussianWorld/SceneSplat_lang-pretrain-concat-scan-ppv2-matt-mcmc-wo-normal-contrastive), which should obtain the evaluation reported results for joint training.
 
 
 ## Self-Supervised Pretraining
@@ -282,10 +293,10 @@ The 3D Gaussian Splatting scenes we provide are governed by the original dataset
 ## Citation
 If you find our method/dataset helpful, please consider citing the following and/or ⭐ our repo.
 ```bib
-@article{li2025scenesplat,
-  title={Scenesplat: Gaussian splatting-based scene understanding with vision-language pretraining},
+@inproceedings{li2025scenesplat,
+  title={SceneSplat: Gaussian Splatting-based Scene Understanding With Vision-Language Pretraining},
   author={Li, Yue and Ma, Qi and Yang, Runyi and Li, Huapeng and Ma, Mengjiao and Ren, Bin and Popovic, Nikola and Sebe, Nicu and Konukoglu, Ender and Gevers, Theo and others},
-  journal={arXiv preprint arXiv:2503.18052},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
   year={2025}
 }
 ```
