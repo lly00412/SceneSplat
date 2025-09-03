@@ -276,10 +276,11 @@ If there is no evaluation needed:
 - Change the dataset type to `GenericGSDataset`
 - Adjust the `split` and `data_root` path in the `data['test']` config
 
-If to run zero-shot semantic segmentation on custom scenes:
-- Obtain `segment.npy` during preprocessing (semseg labels can come from original dataset labels by neighboring voting, or be lifted with a custom pipeline)
-- Make sure `segment.npy` has the same shape as other `*.npy` files, and use a consistent `ignore_index`
-- Please refer to this [script](pointcept/datasets/preprocessing/holicity/preprocess_holicity_gs.py) for example, which preprocesses the HoliCity 3DGS scenes and obtains the `segment.npy` files
+If quantitative evaluation is needed for zero-shot semantic segmentation on custom scenes:
+- Semantic segmentation labels are needed for this 3DGS scene:
+    - Option 1: `segment.npy` of per-gaussian labels, lifted by a custom pipeline. We also have a [script](pointcept/datasets/preprocessing/holicity/preprocess_holicity_gs.py) that preprocesses the HoliCity 3DGS scenes and obtains the `segment.npy` based on nearest neighbor, which only serves as pseudo-labels for Gaussians and may not be accurate. Make sure `segment.npy` has the same shape as other `*.npy` files.
+    - Option 2 (recommended): use the same approach as we report on benchmarks, `pc_segment.npy`, which contains the point cloud semantic segmentation labels of the scene from which 3DGS are optimized.
+    - In both cases, please use a consistent `ignore_index`.
 - Change the dataset type to `GenericGSDataset`
 - Encode the class labels into text embeddings using the script `scripts/encode_labels.py`
 - Set the corresponding `class_names`, `text_embeddings`, and `excluded_classes` settings in the tester config
