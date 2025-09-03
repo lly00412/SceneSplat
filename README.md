@@ -3,7 +3,7 @@
 <h2 align="left">ICCV 2025 Oral</h2>
 
 [![arXiv](https://img.shields.io/badge/arXiv-2503.18052-blue?logo=arxiv&color=%23B31B1B)](https://arxiv.org/abs/2503.18052)
-[![GitHub](https://img.shields.io/badge/GitHub-Webpage-blue?logo=github)](https://github.com/unique1i/SceneSplat_webpage)
+[![GitHub](https://img.shields.io/badge/GitHub-Webpage-blue?logo=github)](https://unique1i.github.io/SceneSplat_webpage/)
 [![🤗 HuggingFace](https://img.shields.io/badge/🤗%20HuggingFace-Dataset-yellow)](https://huggingface.co/datasets/GaussianWorld/scene_splat_7k)
 
 <p align="left">
