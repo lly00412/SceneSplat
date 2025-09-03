@@ -270,13 +270,15 @@ We cover using custom 3DGS scenes for vision-language feature inference.
 
 **Inference on custom 3DGS scenes.** Please use the example script `scripts/preprocess_gs.py` to preprocess the 3DGS scenes into `*.npy` files. The inference requires the per-scene folder under a root path.
 
-If there is no evaluation needed:
-- Set `skip_eval=True` and `save_feat=True` in the tester settings
-- Remove `class_names`, `text_embeddings` and `excluded_classes` settings
-- Change the dataset type to `GenericGSDataset`
-- Adjust the `split` and `data_root` path in the `data['test']` config
+Please find the following steps:
+- Inherit the training config file, e.g., [config](configs/concat_dataset/lang-pretrain-concat-scan-ppv2-matt-mcmc-wo-normal-contrastive.py), and set `test_only=True`. In this way, all data loading will be bypassed and unrelated, only the tester will run.
+- Set `skip_eval=True` and `save_feat=True` in the tester settings, then load the model checkpoint with `weight=/path/to/pth`
+- Remove `class_names`, `text_embeddings` and `excluded_classes` settings in the tester config,
+- In the `data['test']` config, adjust the `data_root` path and `split` folder, and change the dataset type to `GenericGSDataset`.
 
-If quantitative evaluation is needed for zero-shot semantic segmentation on custom scenes:
+The tester will output inference feature of shape `(N, 768)` which corresponds to each input Gaussian.
+
+If further quantitative evaluation is needed for zero-shot semantic segmentation:
 - Semantic segmentation labels are needed for this 3DGS scene:
     - Option 1: `segment.npy` of per-gaussian labels, lifted by a custom pipeline. We also have a [script](pointcept/datasets/preprocessing/holicity/preprocess_holicity_gs.py) that preprocesses the HoliCity 3DGS scenes and obtains the `segment.npy` based on nearest neighbor, which only serves as pseudo-labels for Gaussians and may not be accurate. Make sure `segment.npy` has the same shape as other `*.npy` files.
     - Option 2 (recommended): use the same approach as we report on benchmarks, `pc_segment.npy`, which contains the point cloud semantic segmentation labels of the scene from which 3DGS are optimized.
