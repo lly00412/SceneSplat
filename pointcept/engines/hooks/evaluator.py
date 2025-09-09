@@ -802,12 +802,12 @@ class LangPretrainZeroShotSemSegEval(HookBase):
                 # Neighbor voting if enabled
                 if self.vote_k > 1 and self.enable_voting:
                     coords = input_dict["coord"].cpu().numpy()
-                    valid_mask = input_dict.get("valid_feat_mask", None)
+                    valid_feat_mask = input_dict.get("valid_feat_mask", None)
                     topk_labels = self._neighbor_voting(
                         coords=coords,
                         initial_labels=pred_labels,
-                        valid_mask=valid_mask.cpu().numpy()
-                        if valid_mask is not None
+                        valid_mask=valid_feat_mask.cpu().numpy()
+                        if valid_feat_mask is not None
                         else None,
                         query_coords=pc_coord,
                     )
