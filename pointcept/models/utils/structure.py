@@ -43,6 +43,10 @@ class Point(Dict):
             self["batch"] = offset2batch(self.offset)
         elif "offset" not in self.keys() and "batch" in self.keys():
             self["offset"] = batch2offset(self.batch)
+        # we pop "lang_feat" here to avoid lang pretraining data duplication
+        for feat_name in ["lang_feat"]:
+            if feat_name in self.keys():
+                self.pop(feat_name)
 
     def serialization(self, order="z", depth=None, shuffle_orders=False):
         """

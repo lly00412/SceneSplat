@@ -66,7 +66,7 @@ model = dict(
 )
 
 # scheduler settings
-epoch = 600
+epoch = 800
 optimizer = dict(type="AdamW", lr=0.006, weight_decay=0.05)
 scheduler = dict(
     type="OneCycleLR",
@@ -99,6 +99,15 @@ grid_sample_keys = (
     "scale",
     "segment",
     "lang_feat",
+    "valid_feat_mask",
+)
+grid_sample_keys_test = (
+    "coord",
+    "color",
+    "opacity",
+    "quat",
+    "scale",
+    "segment",
     "valid_feat_mask",
 )
 weight_pdnorm = {
@@ -509,7 +518,7 @@ data = dict(
                     grid_size=0.02,
                     hash_type="fnv",
                     mode="test",
-                    keys=grid_sample_keys,  # keep keys for inference is enough here
+                    keys=grid_sample_keys_test,  # keep keys for inference is enough here
                     apply_to_pc=False,
                     return_grid_coord=True,
                 ),
@@ -579,7 +588,7 @@ data = dict(
                     grid_size=0.02,
                     hash_type="fnv",
                     mode="test",
-                    keys=grid_sample_keys,  # keep keys for inference is enough here
+                    keys=grid_sample_keys_test,  # keep keys for inference is enough here
                     apply_to_pc=False,
                     return_grid_coord=True,
                 ),
@@ -648,7 +657,7 @@ data = dict(
                     grid_size=0.02,
                     hash_type="fnv",
                     mode="test",
-                    keys=grid_sample_keys,  # keep keys for inference is enough here
+                    keys=grid_sample_keys_test,  # keep keys for inference is enough here
                     apply_to_pc=False,
                     return_grid_coord=True,
                 ),
@@ -717,7 +726,7 @@ data = dict(
                     grid_size=0.02,
                     hash_type="fnv",
                     mode="test",
-                    keys=grid_sample_keys,  # keep keys for inference is enough here
+                    keys=grid_sample_keys_test,  # keep keys for inference is enough here
                     apply_to_pc=False,
                     return_grid_coord=True,
                 ),
@@ -748,76 +757,6 @@ data = dict(
                             "center": [0, 0, 0],
                             "p": 1,
                         }
-                    ]
-                ],
-            ),
-        ),
-        # holicity
-        dict(
-            type="HoliCityGSDataset",
-            split="val",
-            data_root=holicity_data_root,
-            is_train=False,  # used when fetching data from the dataset, we also load pc_coord and pc_segment
-            transform=[
-                dict(type="CenterShift", apply_z=True),
-                dict(type="NormalizeColor"),
-                # dict(type="NormalizeCoord"),
-                dict(
-                    type="Copy",
-                    keys_dict={
-                        "segment": "origin_segment",
-                        "coord": "origin_coord",
-                        "valid_feat_mask": "origin_feat_mask",
-                    },
-                ),  # important! Later, once the model’s outputs are reassembled back to the original number of points
-                dict(
-                    type="GridSample",
-                    grid_size=0.002,  # Creates single sample per grid cell
-                    hash_type="fnv",
-                    mode="train",
-                    keys=grid_sample_keys,
-                    apply_to_pc=False,
-                    return_inverse=True,  # the label of the sampled point in each grid cell is assigned to all original points in that cell via the inverse mapping
-                ),
-            ],
-            test_mode=True,
-            test_cfg=dict(
-                voxelize=dict(
-                    type="GridSample",
-                    grid_size=0.005,
-                    hash_type="fnv",
-                    mode="test",  # Creates multiple fragments
-                    keys=grid_sample_keys,
-                    apply_to_pc=False,
-                    return_grid_coord=True,
-                ),
-                crop=None,
-                post_transform=[
-                    dict(type="CenterShift", apply_z=False),
-                    dict(type="ToTensor"),
-                    dict(
-                        type="Collect",
-                        keys=(
-                            "coord",
-                            "grid_coord",
-                            "index",
-                            "lang_feat",
-                            "valid_feat_mask",
-                            "pc_coord",
-                            "pc_segment",
-                        ),
-                        feat_keys=feat_keys,
-                    ),
-                ],
-                aug_transform=[
-                    [
-                        dict(
-                            type="RandomRotateTargetAngle",
-                            angle=[0],
-                            axis="z",
-                            center=[0, 0, 0],
-                            p=1,
-                        )
                     ]
                 ],
             ),
@@ -878,18 +817,5 @@ test = [
         confidence_threshold=0.1,
         save_feat=False,
         skip_eval=False,
-    ),
-    # holicity
-    dict(
-        type="ZeroShotSemSegTester",
-        class_names="/home/yli7/projects/gaussian_world/GS_Transformer_release/pointcept/datasets/preprocessing/holicity/metadata/semseg_labels.txt",
-        text_embeddings="/home/yli7/projects/gaussian_world/GS_Transformer_release/pointcept/datasets/preprocessing/holicity/metadata/holicity_text_embeddings_siglip2.pt",
-        excluded_classes=[],
-        enable_voting=True,
-        vote_k=25,
-        confidence_threshold=0.1,
-        pred_label_mapping={4: 1, 5: 2},
-        save_feat=True,
-        skip_eval=True,
     ),
 ]
