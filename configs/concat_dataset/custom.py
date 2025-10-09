@@ -88,7 +88,6 @@ matterport3d_data_root = "/home/yli7/scratch/datasets/gaussian_world/preprocesse
 holicity_data_root = (
     "/home/yli7/scratch/datasets/gaussian_world/preprocessed/holicity_mcmc_3dgs"
 )
-# matterport3d_data_root = "/mnt/Data3/liyan/preprocess/MP3D/"
 customer_data_root = "/mnt/Data3/liyan/preprocess/MP3D/"
 
 # training settings
