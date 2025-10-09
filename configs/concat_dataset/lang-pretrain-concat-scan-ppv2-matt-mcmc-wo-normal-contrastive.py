@@ -4,7 +4,7 @@ _base_ = [
 ]
 
 # misc custom setting
-debug = 0
+debug = 1
 gpu_nums = 1 if debug else 4
 batch_size = 2 * gpu_nums
 batch_size_val = 1 * gpu_nums
