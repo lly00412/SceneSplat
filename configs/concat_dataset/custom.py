@@ -13,7 +13,7 @@ num_worker = 8 * gpu_nums if not debug else 1
 mix_prob = 0.8
 empty_cache = False
 enable_amp = True
-test_only = False
+test_only = True
 clip_grad = 1.0
 
 # model settings
@@ -79,7 +79,7 @@ scheduler = dict(
 param_dicts = [dict(keyword="block", lr=0.0006)]
 
 # dataset root
-repo_root = "/home/yli7/projects/release/SceneSplat_release"
+repo_root = "/mnt/Data2/liyan/SceneSplat/"
 scannet_data_root = "/home/yli7/scratch/datasets/gaussian_world/preprocessed/scannet_3dgs_mcmc_preprocessed"
 scannetpp_data_root = (
     "/home/yli7/scratch/datasets/gaussian_world/preprocessed/scannetpp_v2_mcmc_3dgs"
@@ -88,6 +88,8 @@ matterport3d_data_root = "/home/yli7/scratch/datasets/gaussian_world/preprocesse
 holicity_data_root = (
     "/home/yli7/scratch/datasets/gaussian_world/preprocessed/holicity_mcmc_3dgs"
 )
+# matterport3d_data_root = "/mnt/Data3/liyan/preprocess/MP3D/"
+customer_data_root = "/mnt/Data3/liyan/preprocess/MP3D/"
 
 # training settings
 feat_keys = ("color", "opacity", "quat", "scale")
@@ -484,10 +486,288 @@ data = dict(
     ],
     test=[
         # scannet20
+        # dict(
+        #     type="ScanNetGSDataset",
+        #     split="val",
+        #     data_root=scannet_data_root,
+        #     is_train=False,
+        #     transform=[
+        #         dict(type="CenterShift", apply_z=True),
+        #         dict(type="NormalizeColor"),
+        #         dict(
+        #             type="Copy",
+        #             keys_dict=dict(
+        #                 segment="origin_segment",
+        #                 coord="origin_coord",
+        #                 valid_feat_mask="origin_feat_mask",
+        #                 pc_instance="origin_instance",
+        #             ),
+        #         ),
+        #         dict(
+        #             type="GridSample",
+        #             grid_size=0.01,
+        #             hash_type="fnv",
+        #             mode="train",
+        #             keys=grid_sample_keys,
+        #             apply_to_pc=False,
+        #             return_inverse=True,
+        #         ),
+        #     ],
+        #     test_mode=True,
+        #     test_cfg=dict(
+        #         voxelize=dict(
+        #             type="GridSample",
+        #             grid_size=0.02,
+        #             hash_type="fnv",
+        #             mode="test",
+        #             keys=grid_sample_keys_test,  # keep keys for inference is enough here
+        #             apply_to_pc=False,
+        #             return_grid_coord=True,
+        #         ),
+        #         crop=None,
+        #         post_transform=[
+        #             dict(type="CenterShift", apply_z=False),
+        #             dict(type="ToTensor"),
+        #             dict(
+        #                 type="Collect",
+        #                 keys=(
+        #                     "coord",
+        #                     "grid_coord",
+        #                     "index",
+        #                     "lang_feat",
+        #                     "valid_feat_mask",
+        #                     "pc_coord",
+        #                     "pc_segment",
+        #                 ),
+        #                 feat_keys=feat_keys,
+        #             ),  # only keys for inference
+        #         ],
+        #         aug_transform=[
+        #             [
+        #                 {
+        #                     "type": "RandomRotateTargetAngle",
+        #                     "angle": [0],
+        #                     "axis": "z",
+        #                     "center": [0, 0, 0],
+        #                     "p": 1,
+        #                 }
+        #             ]
+        #         ],
+        #     ),
+        # ),
+        # # scannet200
+        # dict(
+        #     type="ScanNet200GSDataset",
+        #     split="val",
+        #     data_root=scannet_data_root,
+        #     is_train=False,
+        #     transform=[
+        #         dict(type="CenterShift", apply_z=True),
+        #         dict(type="NormalizeColor"),
+        #         dict(
+        #             type="Copy",
+        #             keys_dict=dict(
+        #                 segment="origin_segment",
+        #                 coord="origin_coord",
+        #                 valid_feat_mask="origin_feat_mask",
+        #                 pc_instance="origin_instance",
+        #             ),
+        #         ),
+        #         dict(
+        #             type="GridSample",
+        #             grid_size=0.01,
+        #             hash_type="fnv",
+        #             mode="train",
+        #             keys=grid_sample_keys,
+        #             apply_to_pc=False,
+        #             return_inverse=True,
+        #         ),
+        #     ],
+        #     test_mode=True,
+        #     test_cfg=dict(
+        #         voxelize=dict(
+        #             type="GridSample",
+        #             grid_size=0.02,
+        #             hash_type="fnv",
+        #             mode="test",
+        #             keys=grid_sample_keys_test,  # keep keys for inference is enough here
+        #             apply_to_pc=False,
+        #             return_grid_coord=True,
+        #         ),
+        #         crop=None,
+        #         post_transform=[
+        #             dict(type="CenterShift", apply_z=False),
+        #             dict(type="ToTensor"),
+        #             dict(
+        #                 type="Collect",
+        #                 keys=(
+        #                     "coord",
+        #                     "grid_coord",
+        #                     "index",
+        #                     "lang_feat",
+        #                     "valid_feat_mask",
+        #                     "pc_coord",
+        #                     "pc_segment",
+        #                 ),
+        #                 feat_keys=feat_keys,
+        #             ),  # only keys for inference
+        #         ],
+        #         aug_transform=[
+        #             [
+        #                 {
+        #                     "type": "RandomRotateTargetAngle",
+        #                     "angle": [0],
+        #                     "axis": "z",
+        #                     "center": [0, 0, 0],
+        #                     "p": 1,
+        #                 }
+        #             ]
+        #         ],
+        #     ),
+        # ),
+        # # matterport3d_160
+        # dict(
+        #     type="Matterport3D_160_GSDataset",
+        #     split="test",
+        #     data_root=matterport3d_data_root,
+        #     is_train=False,
+        #     transform=[
+        #         dict(type="CenterShift", apply_z=True),
+        #         dict(type="NormalizeColor"),
+        #         dict(
+        #             type="Copy",
+        #             keys_dict=dict(
+        #                 segment="origin_segment",
+        #                 coord="origin_coord",
+        #                 valid_feat_mask="origin_feat_mask",
+        #             ),
+        #         ),
+        #         dict(
+        #             type="GridSample",
+        #             grid_size=0.01,
+        #             hash_type="fnv",
+        #             mode="train",
+        #             keys=grid_sample_keys,
+        #             apply_to_pc=False,
+        #             return_inverse=True,
+        #         ),
+        #     ],
+        #     test_mode=True,
+        #     test_cfg=dict(
+        #         voxelize=dict(
+        #             type="GridSample",
+        #             grid_size=0.02,
+        #             hash_type="fnv",
+        #             mode="test",
+        #             keys=grid_sample_keys_test,  # keep keys for inference is enough here
+        #             apply_to_pc=False,
+        #             return_grid_coord=True,
+        #         ),
+        #         crop=None,
+        #         post_transform=[
+        #             dict(type="CenterShift", apply_z=False),
+        #             dict(type="ToTensor"),
+        #             dict(
+        #                 type="Collect",
+        #                 keys=(
+        #                     "coord",
+        #                     "grid_coord",
+        #                     "index",
+        #                     "lang_feat",
+        #                     "valid_feat_mask",
+        #                     "pc_coord",
+        #                     "pc_segment",
+        #                 ),
+        #                 feat_keys=feat_keys,
+        #             ),  # only keys for inference
+        #         ],
+        #         aug_transform=[
+        #             [
+        #                 {
+        #                     "type": "RandomRotateTargetAngle",
+        #                     "angle": [0],
+        #                     "axis": "z",
+        #                     "center": [0, 0, 0],
+        #                     "p": 1,
+        #                 }
+        #             ]
+        #         ],
+        #     ),
+        # ),
+        # # scannet++
+        # dict(
+        #     type="ScanNetPPGSDataset",
+        #     split="val",
+        #     data_root=scannetpp_data_root,
+        #     is_train=False,
+        #     transform=[
+        #         dict(type="CenterShift", apply_z=True),
+        #         dict(type="NormalizeColor"),
+        #         dict(
+        #             type="Copy",
+        #             keys_dict=dict(
+        #                 segment="origin_segment",
+        #                 coord="origin_coord",
+        #                 valid_feat_mask="origin_feat_mask",
+        #             ),
+        #         ),
+        #         dict(
+        #             type="GridSample",
+        #             grid_size=0.01,
+        #             hash_type="fnv",
+        #             mode="train",
+        #             keys=grid_sample_keys,
+        #             apply_to_pc=False,
+        #             return_inverse=True,
+        #         ),
+        #     ],
+        #     test_mode=True,
+        #     test_cfg=dict(
+        #         voxelize=dict(
+        #             type="GridSample",
+        #             grid_size=0.02,
+        #             hash_type="fnv",
+        #             mode="test",
+        #             keys=grid_sample_keys_test,  # keep keys for inference is enough here
+        #             apply_to_pc=False,
+        #             return_grid_coord=True,
+        #         ),
+        #         crop=None,
+        #         post_transform=[
+        #             dict(type="CenterShift", apply_z=False),
+        #             dict(type="ToTensor"),
+        #             dict(
+        #                 type="Collect",
+        #                 keys=(
+        #                     "coord",
+        #                     "grid_coord",
+        #                     "index",
+        #                     "lang_feat",
+        #                     "valid_feat_mask",
+        #                     "pc_coord",
+        #                     "pc_segment",
+        #                 ),
+        #                 feat_keys=feat_keys,
+        #             ),  # only keys for inference
+        #         ],
+        #         aug_transform=[
+        #             [
+        #                 {
+        #                     "type": "RandomRotateTargetAngle",
+        #                     "angle": [0],
+        #                     "axis": "z",
+        #                     "center": [0, 0, 0],
+        #                     "p": 1,
+        #                 }
+        #             ]
+        #         ],
+        #     ),
+        # ),
+        #  customer
         dict(
-            type="ScanNetGSDataset",
-            split="val",
-            data_root=scannet_data_root,
+            type="GenericGSDataset",
+            split="ActiveSGM",
+            data_root=customer_data_root,
             is_train=False,
             transform=[
                 dict(type="CenterShift", apply_z=True),
@@ -553,246 +833,68 @@ data = dict(
                 ],
             ),
         ),
-        # scannet200
-        dict(
-            type="ScanNet200GSDataset",
-            split="val",
-            data_root=scannet_data_root,
-            is_train=False,
-            transform=[
-                dict(type="CenterShift", apply_z=True),
-                dict(type="NormalizeColor"),
-                dict(
-                    type="Copy",
-                    keys_dict=dict(
-                        segment="origin_segment",
-                        coord="origin_coord",
-                        valid_feat_mask="origin_feat_mask",
-                        pc_instance="origin_instance",
-                    ),
-                ),
-                dict(
-                    type="GridSample",
-                    grid_size=0.01,
-                    hash_type="fnv",
-                    mode="train",
-                    keys=grid_sample_keys,
-                    apply_to_pc=False,
-                    return_inverse=True,
-                ),
-            ],
-            test_mode=True,
-            test_cfg=dict(
-                voxelize=dict(
-                    type="GridSample",
-                    grid_size=0.02,
-                    hash_type="fnv",
-                    mode="test",
-                    keys=grid_sample_keys_test,  # keep keys for inference is enough here
-                    apply_to_pc=False,
-                    return_grid_coord=True,
-                ),
-                crop=None,
-                post_transform=[
-                    dict(type="CenterShift", apply_z=False),
-                    dict(type="ToTensor"),
-                    dict(
-                        type="Collect",
-                        keys=(
-                            "coord",
-                            "grid_coord",
-                            "index",
-                            "lang_feat",
-                            "valid_feat_mask",
-                            "pc_coord",
-                            "pc_segment",
-                        ),
-                        feat_keys=feat_keys,
-                    ),  # only keys for inference
-                ],
-                aug_transform=[
-                    [
-                        {
-                            "type": "RandomRotateTargetAngle",
-                            "angle": [0],
-                            "axis": "z",
-                            "center": [0, 0, 0],
-                            "p": 1,
-                        }
-                    ]
-                ],
-            ),
-        ),
-        # matterport3d_160
-        dict(
-            type="Matterport3D_160_GSDataset",
-            split="test",
-            data_root=matterport3d_data_root,
-            is_train=False,
-            transform=[
-                dict(type="CenterShift", apply_z=True),
-                dict(type="NormalizeColor"),
-                dict(
-                    type="Copy",
-                    keys_dict=dict(
-                        segment="origin_segment",
-                        coord="origin_coord",
-                        valid_feat_mask="origin_feat_mask",
-                    ),
-                ),
-                dict(
-                    type="GridSample",
-                    grid_size=0.01,
-                    hash_type="fnv",
-                    mode="train",
-                    keys=grid_sample_keys,
-                    apply_to_pc=False,
-                    return_inverse=True,
-                ),
-            ],
-            test_mode=True,
-            test_cfg=dict(
-                voxelize=dict(
-                    type="GridSample",
-                    grid_size=0.02,
-                    hash_type="fnv",
-                    mode="test",
-                    keys=grid_sample_keys_test,  # keep keys for inference is enough here
-                    apply_to_pc=False,
-                    return_grid_coord=True,
-                ),
-                crop=None,
-                post_transform=[
-                    dict(type="CenterShift", apply_z=False),
-                    dict(type="ToTensor"),
-                    dict(
-                        type="Collect",
-                        keys=(
-                            "coord",
-                            "grid_coord",
-                            "index",
-                            "lang_feat",
-                            "valid_feat_mask",
-                            "pc_coord",
-                            "pc_segment",
-                        ),
-                        feat_keys=feat_keys,
-                    ),  # only keys for inference
-                ],
-                aug_transform=[
-                    [
-                        {
-                            "type": "RandomRotateTargetAngle",
-                            "angle": [0],
-                            "axis": "z",
-                            "center": [0, 0, 0],
-                            "p": 1,
-                        }
-                    ]
-                ],
-            ),
-        ),
-        # scannet++
-        dict(
-            type="ScanNetPPGSDataset",
-            split="val",
-            data_root=scannetpp_data_root,
-            is_train=False,
-            transform=[
-                dict(type="CenterShift", apply_z=True),
-                dict(type="NormalizeColor"),
-                dict(
-                    type="Copy",
-                    keys_dict=dict(
-                        segment="origin_segment",
-                        coord="origin_coord",
-                        valid_feat_mask="origin_feat_mask",
-                    ),
-                ),
-                dict(
-                    type="GridSample",
-                    grid_size=0.01,
-                    hash_type="fnv",
-                    mode="train",
-                    keys=grid_sample_keys,
-                    apply_to_pc=False,
-                    return_inverse=True,
-                ),
-            ],
-            test_mode=True,
-            test_cfg=dict(
-                voxelize=dict(
-                    type="GridSample",
-                    grid_size=0.02,
-                    hash_type="fnv",
-                    mode="test",
-                    keys=grid_sample_keys_test,  # keep keys for inference is enough here
-                    apply_to_pc=False,
-                    return_grid_coord=True,
-                ),
-                crop=None,
-                post_transform=[
-                    dict(type="CenterShift", apply_z=False),
-                    dict(type="ToTensor"),
-                    dict(
-                        type="Collect",
-                        keys=(
-                            "coord",
-                            "grid_coord",
-                            "index",
-                            "lang_feat",
-                            "valid_feat_mask",
-                            "pc_coord",
-                            "pc_segment",
-                        ),
-                        feat_keys=feat_keys,
-                    ),  # only keys for inference
-                ],
-                aug_transform=[
-                    [
-                        {
-                            "type": "RandomRotateTargetAngle",
-                            "angle": [0],
-                            "axis": "z",
-                            "center": [0, 0, 0],
-                            "p": 1,
-                        }
-                    ]
-                ],
-            ),
-        ),
+
+
+
+        ###########################
     ],
 )
 
 # Tester
 test = [
     # scannet20
-    dict(
-        type="ZeroShotSemSegTester",
-        verbose=True,
-        class_names=f"{repo_root}/pointcept/datasets/preprocessing/scannet/meta_data/scannet20_labels.txt",
-        text_embeddings=f"{repo_root}/pointcept/datasets/preprocessing/scannet/meta_data/scannet20_text_embeddings_siglip2.pt",
-        excluded_classes=["wall", "floor", "ceiling"],
-        enable_voting=True,
-        vote_k=25,
-        confidence_threshold=0.1,
-        save_feat=False,
-        skip_eval=False,
-    ),
+    # dict(
+    #     type="ZeroShotSemSegTester",
+    #     verbose=True,
+    #     class_names=f"{repo_root}/pointcept/datasets/preprocessing/scannet/meta_data/scannet20_labels.txt",
+    #     text_embeddings=f"{repo_root}/pointcept/datasets/preprocessing/scannet/meta_data/scannet20_text_embeddings_siglip2.pt",
+    #     excluded_classes=["wall", "floor", "ceiling"],
+    #     enable_voting=True,
+    #     vote_k=25,
+    #     confidence_threshold=0.1,
+    #     save_feat=False,
+    #     skip_eval=False,
+    # ),
     # scannet200
-    dict(
-        type="ZeroShotSemSegTester",
-        verbose=True,
-        class_names=f"{repo_root}/pointcept/datasets/preprocessing/scannet/meta_data/scannet200_labels.txt",
-        text_embeddings=f"{repo_root}/pointcept/datasets/preprocessing/scannet/meta_data/scannet200_text_embeddings_siglip2.pt",
-        excluded_classes=["wall", "floor", "ceiling"],
-        enable_voting=True,
-        vote_k=25,
-        confidence_threshold=0.1,
-        save_feat=False,
-        skip_eval=False,
-    ),
+    # dict(
+    #     type="ZeroShotSemSegTester",
+    #     verbose=True,
+    #     class_names=f"{repo_root}/pointcept/datasets/preprocessing/scannet/meta_data/scannet200_labels.txt",
+    #     text_embeddings=f"{repo_root}/pointcept/datasets/preprocessing/scannet/meta_data/scannet200_text_embeddings_siglip2.pt",
+    #     excluded_classes=["wall", "floor", "ceiling"],
+    #     enable_voting=True,
+    #     vote_k=25,
+    #     confidence_threshold=0.1,
+    #     save_feat=False,
+    #     skip_eval=False,
+    # ),
     # matterport3d_160
+    # dict(
+    #     type="ZeroShotSemSegTester",
+    #     verbose=True,
+    #     class_names=f"{repo_root}/pointcept/datasets/preprocessing/matterport3d/meta_data/matterport_nyu160_labels.txt",
+    #     text_embeddings=f"{repo_root}/pointcept/datasets/preprocessing/matterport3d/meta_data/matterport-nyu160_text_embeddings_siglip2.pt",
+    #     excluded_classes=["wall", "floor", "ceiling", "other furniture"],
+    #     enable_voting=True,
+    #     vote_k=25,
+    #     confidence_threshold=0.1,
+    #     save_feat=False,
+    #     skip_eval=False,
+    # ),
+    # scannet++
+    # dict(
+    #     type="ZeroShotSemSegTester",
+    #     verbose=True,
+    #     class_names=f"{repo_root}/pointcept/datasets/preprocessing/scannetpp/metadata/semantic_benchmark/top100.txt",
+    #     text_embeddings=f"{repo_root}/pointcept/datasets/preprocessing/scannetpp/metadata/semantic_benchmark/top100_text_embeddings_siglip2.pt",
+    #     excluded_classes=["wall", "floor", "ceiling"],
+    #     enable_voting=True,
+    #     vote_k=25,
+    #     confidence_threshold=0.1,
+    #     save_feat=False,
+    #     skip_eval=False,
+    # ),
+    # customer
     dict(
         type="ZeroShotSemSegTester",
         verbose=True,
@@ -802,20 +904,7 @@ test = [
         enable_voting=True,
         vote_k=25,
         confidence_threshold=0.1,
-        save_feat=False,
-        skip_eval=False,
-    ),
-    # scannet++
-    dict(
-        type="ZeroShotSemSegTester",
-        verbose=True,
-        class_names=f"{repo_root}/pointcept/datasets/preprocessing/scannetpp/metadata/semantic_benchmark/top100.txt",
-        text_embeddings=f"{repo_root}/pointcept/datasets/preprocessing/scannetpp/metadata/semantic_benchmark/top100_text_embeddings_siglip2.pt",
-        excluded_classes=["wall", "floor", "ceiling"],
-        enable_voting=True,
-        vote_k=25,
-        confidence_threshold=0.1,
-        save_feat=False,
-        skip_eval=False,
+        save_feat=True,
+        skip_eval=True,
     ),
 ]

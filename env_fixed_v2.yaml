@@ -1,0 +1,17 @@
+name: scene_splat
+channels:
+- conda-forge
+- pytorch
+- nvidia/label/cuda-12.4.1
+- nvidia
+- defaults
+dependencies:
+- python=3.11
+- pip
+- pytorch=2.5.1
+- torchvision=0.20.1
+- pytorch-cuda=12.4
+- tqdm>=4.66
+- requests
+- pip:
+  - open3d==0.19.0
