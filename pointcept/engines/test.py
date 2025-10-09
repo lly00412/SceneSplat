@@ -326,7 +326,7 @@ class ZeroShotSemSegTester(TesterBase):
 
                     # Forward pass
                     with torch.no_grad():
-                        out_dict = self.model(input_dict, chunk_size=600000)
+                        out_dict = self.model(input_dict, chunk_size=300000)
                         # e.g., point feature [M, feat_dim]
                         pred_part_feat = out_dict["point_feat"][
                             "feat"
