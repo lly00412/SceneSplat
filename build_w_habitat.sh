@@ -67,3 +67,5 @@ python setup.py install
 cd ..
 cd libs/pointops2
 python setup.py install
+
+########## install ActiveSGM ########################
