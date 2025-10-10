@@ -56,16 +56,17 @@ git checkout v2.6.0
 pip install packaging
 python -m pip install -v --no-cache-dir --no-build-isolation --no-binary :all: .
 
-export TORCH_CUDA_ARCH_LIST="80;86;89;90"
+#export TORCH_CUDA_ARCH_LIST="80;86;89;90"
+export TORCH_CUDA_ARCH_LIST="8.0"
 export FLASH_ATTENTION_FORCE_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST"
 
 # PTv1 & PTv2 or precise eval
 cd ..
-cd libs/pointops
+cd pointops
 python setup.py install
 
 cd ..
-cd libs/pointops2
+cd pointops2
 python setup.py install
 
 ########## install ActiveSGM ########################
