@@ -8,6 +8,8 @@ conda install -y \
 
 conda install ninja -y
 
+
+################## set system var #########################
 export CMAKE_GENERATOR=Ninja
 export PYTHONPATH=$PWD:$PYTHONPATH
 export CUDA_HOME="$CONDA_PREFIX"
@@ -17,6 +19,12 @@ export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$CONDA_PREFIX/lib64"
 export CC="$CONDA_PREFIX/bin/x86_64-conda-linux-gnu-gcc"
 export CXX="$CONDA_PREFIX/bin/x86_64-conda-linux-gnu-g++"
 export CUDAHOSTCXX="$CXX"
+
+export LDFLAGS="-L/usr/lib/x86_64-linux-gnu ${LDFLAGS}"
+export LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LIBRARY_PATH}"
+sudo ln -s /usr/lib/x86_64-linux-gnu/libcuda.so.1 "$CONDA_PREFIX/lib/libcuda.so"
+export TORCH_CUDA_ARCH_LIST="8.6"
+
 
 ########## install habitat3.0 ########################
 
@@ -70,3 +78,48 @@ cd pointops2
 python setup.py install
 
 ########## install ActiveSGM ########################
+
+# tiny-cuda-nn
+pip install --no-build-isolation --no-cache-dir \
+  'git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch'
+pip install charset_normalizer==2.0.4
+
+# pytorch3d
+pip install "git+https://github.com/facebookresearch/pytorch3d.git@stable"
+
+# gaussain render with depth
+git clone https://github.com/JonathonLuiten/diff-gaussian-rasterization-w-depth.git
+cd diff-gaussian-rasterization-w-depth
+git checkout cb65e4b86bc3bd8ed42174b72a62e8d3a3a71110
+sed -i '1i #include <cstddef>\n#include <cstdint>' cuda_rasterizer/rasterizer_impl.h
+pip install --no-build-isolation --no-cache-dir .
+
+# channel render
+cd ..
+git clone https://github.com/lly00412/semantic-gaussians.git
+cd semantic-gaussians/
+git checkout liyan/dev
+
+# modify config.h base on number of class
+#NUM_CHANNELS {num of class} // Default 3
+
+d channel-rasterization/
+sed -i '1i #include <cstdint>\n#include <cstddef>' cuda_rasterizer/rasterizer_impl.h
+pip install --no-build-isolation --no-cache-dir -v .
+
+# sparse render
+cd ../..
+git clone https://github.com/lly00412/semantic-gaussians.git ./sparse_render
+cd sparse_render
+git checkout hairong/sparse_ver
+cd sparse-channel-rasterization/
+sed -i '1i #include <cstdint>\n#include <cstddef>' cuda_rasterizer/rasterizer_impl.h
+
+# modify config.h base on number of class
+#NUM_CHANNELS {num of class} // Default 3 MP3D:41
+
+
+############## install other reqirement ##########################
+
+pip install -U openmim
+mim install mmcv==2.0.0

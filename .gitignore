@@ -25,4 +25,6 @@ exp/
 *.whl
 *.ply
 *.pth
+*.xml
 data/
+eval/
