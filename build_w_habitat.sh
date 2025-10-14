@@ -121,4 +121,6 @@ sed -i '1i #include <cstdint>\n#include <cstddef>' cuda_rasterizer/rasterizer_im
 
 ############## install other reqirement ##########################
 
-pip install mmcv --use-pep517 --no-build-isolation
+cd ../..
+pip install -r requirements.txt
+pip install -r requirements_semantic.txt
