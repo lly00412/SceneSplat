@@ -121,5 +121,4 @@ sed -i '1i #include <cstdint>\n#include <cstddef>' cuda_rasterizer/rasterizer_im
 
 ############## install other reqirement ##########################
 
-pip install -U openmim
-mim install mmcv==2.0.0
+pip install mmcv --use-pep517 --no-build-isolation
