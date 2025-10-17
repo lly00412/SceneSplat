@@ -8,6 +8,7 @@ import torch.nn.functional as F
 import torch.utils.data
 import copy
 import random
+from matplotlib import cm
 
 
 from .defaults import create_ddp_model
@@ -385,16 +386,16 @@ class ZeroShotSemSegTester(TesterBase):
 
                     output_coords = pred_coord.cpu().numpy()
                     output_class = pred.astype(np.uint8)
-                    random.seed(42)  # Set seed for reproducibility
-                    colormap = {i: (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for i in
-                                range(num_classes)}
-                    N = output_coords.shape[0]
-                    output_pred_color = colormap[pred] / 255.0
                     save_pred_path = (
-                     os.path.join(save_path, "feat", f"{data_name}_pred.ply")
-                     if self.save_feat
-                     else None
-                      )
+                        os.path.join(save_path, "feat", f"{data_name}_pred.ply")
+                        if self.save_feat
+                        else None
+                    )
+                    random.seed(42)  # Set seed for reproducibility
+                    breakpoint()
+                    colormap = cm.get_cmap('gist_ncar', 40)
+                    fixed_colormap = (colormap(np.linspace(0, 1, 40))[:, :3] * 255).astype(np.uint8)
+                    output_pred_color = fixed_colormap[output_class] / 255.0
                     save_point_cloud(output_coords, color=output_pred_color, file_path=save_pred_path, logger=None)
                     breakpoint()
 
