@@ -9,6 +9,7 @@ import torch.utils.data
 import copy
 import random
 from matplotlib import cm
+import open3d as o3d
 
 
 from .defaults import create_ddp_model
@@ -381,10 +382,10 @@ class ZeroShotSemSegTester(TesterBase):
                     # typical semantic seg => pick best
                     max_probs, argmax_indices = torch.max(pred, dim=1)
                     argmax_indices[max_probs < self.confidence_threshold] = ignore_index
-                    pred = argmax_indices.cpu().numpy()
+                    pred = argmax_indices.detach().cpu().numpy()
 
 
-                    output_coords = pred_coord.cpu().numpy()
+                    output_coords = pred_coord.detach().cpu().numpy().astype(np.float32)
                     output_class = pred.astype(np.uint8)
                     save_pred_path = (
                         os.path.join(save_path, "feat", f"{data_name}_pred.ply")
@@ -392,12 +393,29 @@ class ZeroShotSemSegTester(TesterBase):
                         else None
                     )
                     random.seed(42)  # Set seed for reproducibility
-                    breakpoint()
                     colormap = cm.get_cmap('gist_ncar', 40)
                     fixed_colormap = (colormap(np.linspace(0, 1, 40))[:, :3] * 255).astype(np.uint8)
-                    output_pred_color = fixed_colormap[output_class] / 255.0
-                    save_point_cloud(output_coords, color=output_pred_color, file_path=save_pred_path, logger=None)
+                    output_pred_color = fixed_colormap[output_class]
+                    os.makedirs(os.path.dirname(save_pred_path), exist_ok=True)
+
+                    N = output_coords.shape[0]
+                    header = (
+                        "ply\nformat binary_little_endian 1.0\n"
+                        f"element vertex {N}\n"
+                        "property float x\nproperty float y\nproperty float z\n"
+                        "property uchar red\nproperty uchar green\nproperty uchar blue\n"
+                        "end_header\n"
+                    ).encode("ascii")
+                    dtype = np.dtype([("x", "<f4"), ("y", "<f4"), ("z", "<f4"), ("r", "u1"), ("g", "u1"), ("b", "u1")])
+                    arr = np.empty(N, dtype=dtype)
+                    arr["x"], arr["y"], arr["z"] = output_coords[:, 0], output_coords[:, 1], output_coords[:, 2]
+                    arr["r"], arr["g"], arr["b"] = output_pred_color[:, 0], output_pred_color[:, 1],output_pred_color[:, 2]
+                    with open(save_pred_path, "wb") as f:
+                        f.write(header);
+                        arr.tofile(f)
+
                     breakpoint()
+
 
 
 
