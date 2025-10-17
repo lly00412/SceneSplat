@@ -766,7 +766,7 @@ data = dict(
         #  customer
         dict(
             type="GenericGSDataset",
-            split="ActiveSGM",
+            split="SceneSplat",
             data_root=customer_data_root,
             is_train=False,
             transform=[
@@ -798,9 +798,16 @@ data = dict(
                     grid_size=0.02,
                     hash_type="fnv",
                     mode="test",
-                    keys=grid_sample_keys_test,  # keep keys for inference is enough here
+                    keys={ "coord",
+                        "color",
+                        "opacity",
+                        "quat",
+                        "scale",
+                        "lang_feat",
+                        "valid_feat_mask",},  # keep keys for inference is enough here
                     apply_to_pc=False,
                     return_grid_coord=True,
+                    return_inverse=True,
                 ),
                 crop=None,
                 post_transform=[
@@ -817,7 +824,7 @@ data = dict(
                             "pc_coord",
                             "pc_segment",
                         ),
-                        feat_keys=feat_keys,
+                        feat_keys=("color", "opacity", "quat", "scale"),
                     ),  # only keys for inference
                 ],
                 aug_transform=[
@@ -898,13 +905,13 @@ test = [
     dict(
         type="ZeroShotSemSegTester",
         verbose=True,
-        class_names=f"{repo_root}/pointcept/datasets/preprocessing/matterport3d/meta_data/matterport_nyu160_labels.txt",
-        text_embeddings=f"{repo_root}/pointcept/datasets/preprocessing/matterport3d/meta_data/matterport-nyu160_text_embeddings_siglip2.pt",
+        class_names=f"{repo_root}/pointcept/datasets/preprocessing/matterport3d/meta_data/mp3d40.txt",
+        text_embeddings=f"{repo_root}/pointcept/datasets/preprocessing/matterport3d/meta_data/mp3d40_text_embeddings_siglip2.pt",
         excluded_classes=["wall", "floor", "ceiling", "other furniture"],
         enable_voting=True,
         vote_k=25,
         confidence_threshold=0.1,
         save_feat=True,
-        skip_eval=True,
+        skip_eval=False,
     ),
 ]

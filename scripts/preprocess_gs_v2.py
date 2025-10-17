@@ -168,6 +168,15 @@ def process_npz_file(npz_path, output_dir):
     ply_savepath = os.path.join(output_dir, ply_name)
     rgbs = params['rgb_colors']
     opacities = params['logit_opacities']
+
+    # rotate 9 degree
+    R = np.array([
+        [1, 0, 0],
+        [0, 0, 1],
+        [0, -1, 0]
+    ], dtype=np.float32)
+    params["means3D"] = params["means3D"] @ R.T  # (N, 3)
+
     write_ply_file(rgbs, opacities, params, ply_savepath)
     return ply_savepath
 

@@ -8,7 +8,6 @@ conda install -y \
 
 conda install ninja -y
 
-
 ################## set system var #########################
 export CMAKE_GENERATOR=Ninja
 export PYTHONPATH=$PWD:$PYTHONPATH

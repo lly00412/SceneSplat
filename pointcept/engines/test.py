@@ -369,6 +369,8 @@ class ZeroShotSemSegTester(TesterBase):
                     )
                     del point_features, final_features
 
+
+
                 if "ScanNetPP" in self.cfg.data.test.type:
                     # e.g. we want top-3 classes for each point
                     pred = pred.topk(3, dim=1)[1].cpu().numpy()  # shape => [N, 3]
@@ -377,6 +379,9 @@ class ZeroShotSemSegTester(TesterBase):
                     max_probs, argmax_indices = torch.max(pred, dim=1)
                     argmax_indices[max_probs < self.confidence_threshold] = ignore_index
                     pred = argmax_indices.cpu().numpy()
+
+                    breakpoint()
+                    # save output pointcloud
 
                 if "origin_segment" in data_dict:
                     assert "inverse" in data_dict, (
@@ -470,6 +475,7 @@ class ZeroShotSemSegTester(TesterBase):
             if self.enable_voting:
                 num_classes = self.num_classes
                 ignore_index = self.ignore_index
+                breakpoint()
                 if "pc_coord" in data_dict and "pc_segment" in data_dict:
                     coords = data_dict["origin_coord"]
                     query_coords = data_dict["pc_coord"]
