@@ -7,6 +7,7 @@ import torch.distributed as dist
 import torch.nn.functional as F
 import torch.utils.data
 import copy
+import random
 
 
 from .defaults import create_ddp_model
@@ -23,6 +24,7 @@ from pointcept.utils.misc import (
     neighbor_voting,
     clustering_voting,
 )
+from pointcept.utils.visualization import save_point_cloud
 
 
 TESTERS = Registry("testers")
@@ -380,7 +382,24 @@ class ZeroShotSemSegTester(TesterBase):
                     argmax_indices[max_probs < self.confidence_threshold] = ignore_index
                     pred = argmax_indices.cpu().numpy()
 
+
+                    output_coords = pred_coord.cpu().numpy()
+                    output_class = pred.astype(np.uint8)
+                    random.seed(42)  # Set seed for reproducibility
+                    colormap = {i: (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) for i in
+                                range(num_classes)}
+                    N = output_coords.shape[0]
+                    output_pred_color = colormap[pred] / 255.0
+                    save_pred_path = (
+                     os.path.join(save_path, "feat", f"{data_name}_pred.ply")
+                     if self.save_feat
+                     else None
+                      )
+                    save_point_cloud(output_coords, color=output_pred_color, file_path=save_pred_path, logger=None)
                     breakpoint()
+
+
+
                     # save output pointcloud
 
                 if "origin_segment" in data_dict:
@@ -475,7 +494,6 @@ class ZeroShotSemSegTester(TesterBase):
             if self.enable_voting:
                 num_classes = self.num_classes
                 ignore_index = self.ignore_index
-                breakpoint()
                 if "pc_coord" in data_dict and "pc_segment" in data_dict:
                     coords = data_dict["origin_coord"]
                     query_coords = data_dict["pc_coord"]

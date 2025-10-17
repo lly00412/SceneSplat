@@ -766,7 +766,7 @@ data = dict(
         #  customer
         dict(
             type="GenericGSDataset",
-            split="SceneSplat",
+            split="ActiveSGM",
             data_root=customer_data_root,
             is_train=False,
             transform=[
@@ -823,6 +823,7 @@ data = dict(
                             "valid_feat_mask",
                             "pc_coord",
                             "pc_segment",
+                            'inverse',
                         ),
                         feat_keys=("color", "opacity", "quat", "scale"),
                     ),  # only keys for inference
